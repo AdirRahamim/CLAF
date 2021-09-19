@@ -3,7 +3,7 @@ This repository is the official PyTorch implementation of "[Paper Name(CHANGE+LI
 
 ## Requirements
 
-Tested with the foloowing packages:
+Tested with the following packages:
 - python 3.9
 - torch 1.9
 - torchvision 0.10
@@ -32,7 +32,7 @@ Our model achieves the following performance on :
 
 ### Classification and robustness on CIFAR 10
 
-| Model name         |    Accuracy     |   robustness(Under PGD-10)   |
+| Model              |    Accuracy     |   robustness(Under PGD-10)   |
 | ------------------ |---------------- | ---------------------------- |
 |  ResNet18          |    92.46 %      |            60.47 %           |
 
