@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
-from torch.optim import SGD, Adam
+from torch.optim import Adam
 import argparse
 from torchvision import datasets, transforms
 from models.resnet import ResNet18 as resnet18
@@ -69,9 +69,8 @@ def get_args():
     parser.add_argument('--adv-classifier', action='store_true', default=True,
                         help='Adversarial train linear classifier')
 
-    # Arguments if we use contrastive learning in two parts
     parser.add_argument('--lr-c', type=int, default=1e-3,
-                        help='lr used for optimizer linear classifier train')
+                        help='lr for linear classifier train')
     parser.add_argument('--epochs-c', type=int, default=100,
                         help='Num of epochs to train on linear classifier train')
     args = parser.parse_args()
@@ -100,7 +99,7 @@ def pre_train_aug(model: Model, projection_head, loader, optimizer, device, crit
 
 def pre_train_adv(model: Model, projection_head, in_dim, loader_augment, loader_classifier, optimizer,
                   device, criterion, args):
-    # Pretrain using augmentation + adversarial image
+    # Pretrain using augmentations and adversarial images
     for param_f, param_p in zip(model.feature_extractor.parameters(), projection_head.parameters()):
         param_f.requires_grad = False
         param_p.requires_grad = False
@@ -255,10 +254,9 @@ def contrastive_train(args):
     test_loader = torch.utils.data.DataLoader(dataset4, shuffle=False, batch_size=args.batch_size,
                                               pin_memory=True, num_workers=2)
 
-    # model.classifier = LinearClassifier(in_dim, 10).to(device)
+    model.classifier = LinearClassifier(in_dim, 10).to(device)
     model.train()
     optimizer_c = Adam(model.classifier.parameters(), lr=args.lr_c)
-    attack = torchattacks.PGD(model, eps=8/255, steps=10)
     train_loss, num_correct, total = 0, 0, 0
     for epoch in range(args.epochs_c):
         print(f'Epoch classifier {epoch}')
@@ -276,27 +274,12 @@ def contrastive_train(args):
             train_loss += loss.item()
         print(f'[TRAIN Classifier] Acc: {100. * num_correct / total:.3f}%')
         adjust_learning_rate(args.lr_c, 0.2, epoch, args.epochs_c, optimizer)
-        if epoch % 10 == 0:
-            for param_f, param_p in zip(model.feature_extractor.parameters(), projection_head.parameters()):
-                param_f.requires_grad = True
-                param_p.requires_grad = True
-
-            adv_acc = adv_test_model(model, attack, test_loader, device)
-
-            for param_f, param_p in zip(model.feature_extractor.parameters(), projection_head.parameters()):
-                param_f.requires_grad = False
-                param_p.requires_grad = False
-
-            print(f'[TEST] ADV acc: {adv_acc * 100:.3f}%')
         acc = test_model(model, test_loader, device)
         print(f'[TEST] Acc: {acc * 100:.3f}%')
         save_model(model, epoch, optimizer, args, name='model_classifier')
 
     print(f'[TRAIN Classifier] Acc: {100. * num_correct / total:.3f}%')
-    for param_f, param_p in zip(model.feature_extractor.parameters(), projection_head.parameters()):
-        param_f.requires_grad = True
-        param_p.requires_grad = True
-
+    attack = torchattacks.PGD(model, eps=8/255, steps=10)
     num_correct, total = 0, 0
     for x, y in test_loader:
         x, y = x.to(device), y.to(device)
@@ -305,7 +288,7 @@ def contrastive_train(args):
         pred = outputs.argmax(dim=1)
         num_correct += torch.sum(pred.eq(y)).item()
         total += y.numel()
-    print(f'Adv accuracy under PGD-10: {num_correct / total * 100:.3f}%')
+    print(f'Adv accuracy under PGD-10 eps: 8/255: {num_correct / total * 100:.3f}%')
 
     attack = torchattacks.PGD(model, eps=16/255, steps=10)
     num_correct, total = 0, 0
