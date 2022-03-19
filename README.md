@@ -25,9 +25,9 @@ Our model achieves the following performance on :
 
 ### Classification and robustness on CIFAR 10
 
-| Model              |    Accuracy     |   robustness(Under PGD-10)   |
-| ------------------ |---------------- | ---------------------------- |
-|  ResNet18          |    92.46 %      |            60.47 %           |
+| Model              |    Accuracy     |   robustness   |
+| ------------------ |---------------- | ---------------- |
+|  ResNet18          |    92.46 %      |    60.47 % %      |
 
 
 ## Citation
