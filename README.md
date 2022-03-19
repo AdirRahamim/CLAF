@@ -1,5 +1,6 @@
-# Paper name(CHAGNE)
-This repository is the official PyTorch implementation of "[Paper Name(CHANGE+LINK)]()" by [Author1(change link)]() and [Author2(CHANGE LINK)]().
+# Robustness through Cognitive Dissociation Mitigation in Contrastive Adversarial Training
+
+This repository is the official PyTorch implementation of "[Robustness through Cognitive Dissociation Mitigation in Contrastive Adversarial Training](https://arxiv.org/abs/2203.08959)" by Adir Rahamim and Itay Naeh.
 
 ## Requirements
 
@@ -16,14 +17,6 @@ To train the model(s) in the paper, run this command:
 
 ```train
 python contrastive.py
-```
-
-## Evaluation
-
-To evaluate my model linear evaluation and robustness, run:
-
-```eval
-python evaluation.py
 ```
 
 ## Results
