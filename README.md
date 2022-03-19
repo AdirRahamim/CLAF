@@ -21,9 +21,7 @@ python main.py
 
 ## Results
 
-Our model achieves the following performance on :
-
-### Classification and robustness on CIFAR 10
+Our model achieves the following clean accuracy and robustness on the CIFAR-10 dataset:
 
 | Model              |    Accuracy     |   robustness   |
 | ------------------ |---------------- | ---------------- |
