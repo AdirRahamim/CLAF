@@ -32,3 +32,9 @@ Our model achieves the following performance on :
 
 ## Citation
 ```
+@inproceedings{Rahamim2022RobustnessTC,
+  title={Robustness through Cognitive Dissociation Mitigation in Contrastive Adversarial Training},
+  author={Adir Rahamim and Itay Naeh},
+  year={2022}
+}
+'''
