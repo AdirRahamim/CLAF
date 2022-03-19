@@ -11,12 +11,12 @@ Tested with the following packages:
 - CUDA 11.1
 - [torchattacks](https://github.com/Harry24k/adversarial-attacks-pytorch) 3.0
 
-## Training
+## Training and Evaluation
 
-To train the model(s) in the paper, run this command:
+To train and then evaluate the model in the paper, run this command:
 
 ```train
-python contrastive.py
+python main.py
 ```
 
 ## Results
@@ -27,7 +27,7 @@ Our model achieves the following performance on :
 
 | Model              |    Accuracy     |   robustness   |
 | ------------------ |---------------- | ---------------- |
-|  ResNet18          |    92.46 %      |    60.47 % %      |
+|  ResNet18          |    92.46 %      |    60.47 %      |
 
 
 ## Citation
