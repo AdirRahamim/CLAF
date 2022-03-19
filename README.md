@@ -21,7 +21,7 @@ python main.py
 
 ## Results
 
-Our model achieves the following clean accuracy and robustness on the CIFAR-10 dataset:
+Our model achieves the following clean and robust accuracy on the CIFAR-10 dataset:
 
 | Model              |    Accuracy     |   robustness   |
 | ------------------ |---------------- | ---------------- |
