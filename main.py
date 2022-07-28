@@ -85,6 +85,7 @@ def pre_train_aug(model: Model, projection_head, loader, optimizer, device, crit
         images, y = torch.cat([x1, x2], dim=0).to(device), y.to(device)
         bsz = y.shape[0]
         features = projection_head(F.normalize(model.forward_features(images), dim=1))
+        # features = F.normalize(projection_head(model.forward_features(images)), dim=1)
         f1, f2 = torch.split(features, [bsz, bsz], dim=0)
         features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1)
         loss = criterion(features, y)
@@ -142,8 +143,8 @@ def pre_train_adv(model: Model, projection_head, in_dim, loader_augment, loader_
 
         images = torch.cat([x1, x2, x_adv], dim=0).to(device)
         bsz = y.shape[0]
-        features = projection_head(F.normalize(model.forward_features(images), dim=1))
-
+        # features = projection_head(F.normalize(model.forward_features(images), dim=1))
+        features = F.normalize(projection_head(model.forward_features(images)), dim=1)
         f1, f2, f_adv = torch.split(features, [bsz, bsz, bsz], dim=0)
         features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1), f_adv.unsqueeze(1)], dim=1)
         loss = criterion(features, y)
@@ -171,17 +172,17 @@ def contrastive_train(args):
     print(f'-> device: {device}')
 
     pretrain_aug_transform = TwoCropsTransform(transforms.Compose([
-                            transforms.RandomResizedCrop(size=32, scale=(0.2, 1.)),
+        transforms.RandomResizedCrop(size=32, scale=(0.2, 1.)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomApply([
+            transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+        transforms.RandomGrayscale(p=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))]),
+        transforms.Compose([transforms.RandomResizedCrop(size=32, scale=(0.2, 1.)),
                             transforms.RandomHorizontalFlip(),
-                            transforms.RandomApply([
-                            transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
-                            transforms.RandomGrayscale(p=0.2),
                             transforms.ToTensor(),
-                            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))]),
-                    transforms.Compose([transforms.RandomResizedCrop(size=32, scale=(0.2, 1.)),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))]))
+                            transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))]))
 
     dataset1 = datasets.CIFAR10('data/cifar10', train=True, transform=pretrain_aug_transform, download=True)
     pretrain_aug_loader = torch.utils.data.DataLoader(dataset1, shuffle=True, batch_size=args.batch_size,
@@ -212,7 +213,7 @@ def contrastive_train(args):
     # Feature extractor pretrain using augmentation only
     for epoch in range(start_epoch, args.aug_epochs):
         print(f'Epoch pretrain [AUGMENT] {epoch}')
-        loss = pre_train_aug(model, projection_head, pretrain_aug_loader, optimizer, device, criterion)
+        pre_train_aug(model, projection_head, pretrain_aug_loader, optimizer, device, criterion)
         adjust_learning_rate(args.lr, args.lr_decay_rate, epoch, args.epochs, optimizer)
         save_model(model, epoch, optimizer, args, name='model_aug')
         save_model(projection_head, epoch, optimizer, args, name='Projection_head')
