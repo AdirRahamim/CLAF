@@ -83,9 +83,9 @@ def pre_train_aug(model: Model, projection_head, loader, optimizer, device, crit
     for x, y in loader:
         _, x1, x2 = x
         images, y = torch.cat([x1, x2], dim=0).to(device), y.to(device)
+        # x1, x2 = x1.to(device), x2.to(device)
         bsz = y.shape[0]
         features = projection_head(F.normalize(model.forward_features(images), dim=1))
-        # features = F.normalize(projection_head(model.forward_features(images)), dim=1)
         f1, f2 = torch.split(features, [bsz, bsz], dim=0)
         features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1)
         loss = criterion(features, y)
