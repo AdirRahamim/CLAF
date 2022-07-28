@@ -194,7 +194,7 @@ def contrastive_train(args):
     projection_head = ProjectionHead(in_dim, out_dim).to(device)
     model = Model(feature_extractor, None).to(device)
     optimizer = torch.optim.Adam(list(model.feature_extractor.parameters()) + list(projection_head.parameters()),
-                                 args.lr, weight_decay=args.weight_decay)
+                                args.lr, weight_decay=args.weight_decay)
     criterion = SupConLoss(temperature=0.07).to(device)
 
     start_epoch = 0
