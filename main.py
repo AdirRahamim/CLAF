@@ -5,7 +5,7 @@ from torch.optim import Adam
 import argparse
 from torchvision import datasets, transforms
 from models.resnet import ResNet18 as resnet18
-from utils import test_model, adv_test_model, TwoCropsTransform, SupConLoss, adjust_learning_rate
+from utils import test_model, TwoCropsTransform, SupConLoss, adjust_learning_rate
 import os
 import torchattacks
 
@@ -193,7 +193,7 @@ def contrastive_train(args):
     in_dim, out_dim = 512, 128
     projection_head = ProjectionHead(in_dim, out_dim).to(device)
     model = Model(feature_extractor, None).to(device)
-    optimizer = torch.optim.Adam(list(model.feature_extractor.parameters()) + list(projection_head.parameters()),
+    optimizer = torch.optim.SGD(list(model.feature_extractor.parameters()) + list(projection_head.parameters()),
                                 args.lr, weight_decay=args.weight_decay)
     criterion = SupConLoss(temperature=0.07).to(device)
 
